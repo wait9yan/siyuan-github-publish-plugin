@@ -15,6 +15,7 @@ class ContentProcessor {
     static async processMarkdownImages(markdown: string, blockId: string): Promise<{ content: string, images: ImageInfo[] }> {
         const images: ImageInfo[] = [];
         let processedContent = markdown;
+        let imageCounter = 1;
         
         // 匹配 Markdown 图片语法 ![alt](url)
         const markdownImageRegex = /!\[(.*?)\]\((.*?)\)/g;
@@ -25,13 +26,14 @@ class ContentProcessor {
             
             if (imageUrl && this.isLocalImage(imageUrl)) {
                 try {
-                    const imageInfo = await this.processImage(imageUrl, blockId);
+                    const imageInfo = await this.processImage(imageUrl, blockId, imageCounter);
                     if (imageInfo) {
                         images.push(imageInfo);
                         
                         // 重写图片链接为相对路径
                         const newUrl = `${imageInfo.filename}`;
                         processedContent = processedContent.replace(fullMatch, `![${altText}](${newUrl})`);
+                        imageCounter++;
                     }
                 } catch (error) {
                     console.warn(`Failed to process image: ${imageUrl}`, error);
@@ -48,7 +50,7 @@ class ContentProcessor {
             
             if (imageUrl && this.isLocalImage(imageUrl)) {
                 try {
-                    const imageInfo = await this.processImage(imageUrl, blockId);
+                    const imageInfo = await this.processImage(imageUrl, blockId, imageCounter);
                     if (imageInfo) {
                         images.push(imageInfo);
                         
@@ -58,6 +60,7 @@ class ContentProcessor {
                             `src="${imageUrl}"`,
                             `src="${newUrl}"`
                         );
+                        imageCounter++;
                     }
                 } catch (error) {
                     console.warn(`Failed to process HTML image: ${imageUrl}`, error);
@@ -84,10 +87,10 @@ class ContentProcessor {
     /**
      * 处理单个图片
      */
-    private static async processImage(imageUrl: string, blockId: string): Promise<ImageInfo | null> {
+    private static async processImage(imageUrl: string, blockId: string, imageIndex?: number): Promise<ImageInfo | null> {
         try {
             // 获取图片文件名
-            const filename = this.getImageFilename(imageUrl);
+            const filename = this.getImageFilename(imageUrl, imageIndex);
             
             // 获取图片内容
             const imageContent = await this.getImageContent(imageUrl, blockId);
@@ -110,7 +113,26 @@ class ContentProcessor {
     /**
      * 从 URL 中提取文件名
      */
-    private static getImageFilename(url: string): string {
+    private static getImageFilename(url: string, imageIndex?: number): string {
+        // 如果有图片序号，使用顺序命名
+        if (imageIndex !== undefined && imageIndex !== null) {
+            // 从URL中提取文件扩展名
+            const cleanUrl = url.split('?')[0];
+            const parts = cleanUrl.split('/');
+            let originalFilename = parts[parts.length - 1];
+            
+            // 获取文件扩展名
+            let extension = 'png';
+            if (originalFilename.includes('.')) {
+                const extParts = originalFilename.split('.');
+                extension = extParts.pop() || 'png';
+            }
+            
+            // 返回顺序命名的文件名：image1.png, image2.jpg 等
+            return `image${imageIndex}.${extension}`;
+        }
+        
+        // 如果没有序号，使用原来的逻辑（保持向后兼容）
         // 移除查询参数
         const cleanUrl = url.split('?')[0];
         
