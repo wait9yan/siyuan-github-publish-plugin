@@ -620,7 +620,18 @@ export default class GitHubPublishPlugin extends Plugin {
             
             if (storageData !== null && storageData !== undefined && storageData !== '') {
                 try {
-                    const parsedData = JSON.parse(storageData);
+                    // 检查存储数据是否是字符串（需要解析）还是已经是对象
+                    let parsedData;
+                    if (typeof storageData === 'string') {
+                        parsedData = JSON.parse(storageData);
+                    } else if (typeof storageData === 'object') {
+                        parsedData = storageData;
+                    } else {
+                        console.error("Invalid publish records format:", typeof storageData, storageData);
+                        this.publishRecords = {};
+                        return;
+                    }
+                    
                     // 确保解析后的数据是对象格式
                     if (parsedData && typeof parsedData === 'object' && !Array.isArray(parsedData)) {
                         this.publishRecords = parsedData;
