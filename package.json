@@ -5,7 +5,7 @@
   "description": "A powerful SiYuan note plugin that allows you to publish your notes to GitHub repositories with automatic image processing and custom domain support",
   "repository": "https://github.com/sonicrang/siyuan-github-publish-plugin",
   "homepage": "https://github.com/sonicrang/siyuan-github-publish-plugin",
-  "author": "YourName",
+  "author": "WuRang",
   "license": "MIT",
   "scripts": {
     "dev": "cross-env NODE_ENV=development VITE_SOURCEMAP=inline vite build --watch",
