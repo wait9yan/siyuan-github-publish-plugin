@@ -546,7 +546,17 @@ export default class GitHubPublishPlugin extends Plugin {
         if (frontMatter && frontMatter.trim()) {
             // 移除思源笔记可能自动添加的Front Matter（如果有的话）
             finalContent = this.removeExistingFrontMatter(finalContent);
-            finalContent = `---\n${frontMatter}\n---\n\n${finalContent}`;
+            
+            // 添加自定义 Front Matter（确保不重复添加 --- 分隔符）
+            let processedFrontMatter = frontMatter.trim();
+            
+            // 如果用户提供的 Front Matter 已经包含 --- 分隔符，直接使用
+            if (processedFrontMatter.startsWith('---') && processedFrontMatter.endsWith('---')) {
+                finalContent = `${processedFrontMatter}\n\n${finalContent}`;
+            } else {
+                // 否则添加标准的 --- 分隔符
+                finalContent = `---\n${processedFrontMatter}\n---\n\n${finalContent}`;
+            }
         }
 
         // 准备要上传的文件列表
@@ -699,7 +709,10 @@ export default class GitHubPublishPlugin extends Plugin {
     private removeExistingFrontMatter(content: string): string {
         // 匹配YAML Front Matter格式：以---开头和结尾的内容块
         const frontMatterRegex = /^---\s*\n([\s\S]*?)\n---\s*\n/;
-        return content.replace(frontMatterRegex, '');
+        const result = content.replace(frontMatterRegex, '');
+        
+        // 如果替换后内容以空行开头，移除空行
+        return result.replace(/^\s*\n/, '');
     }
 
     /**
