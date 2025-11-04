@@ -84,7 +84,7 @@ export default defineConfig({
                     zipPack({
                         inDir: './dist',
                         outDir: './',
-                        outFileName: 'siyuan-github-publish-plugin.zip'
+                        outFileName: 'package.zip'
                     })
                 ])
             ],
