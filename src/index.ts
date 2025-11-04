@@ -23,8 +23,8 @@ import { ContentProcessor } from "./libs/content-processor";
 import { inputDialogSync } from "./libs/dialog";
 import type { GitHubConfig, ImageInfo, PublishRecord, PublishRecords } from "./types/github";
 
-const STORAGE_NAME = "github-publish-config";
-const PUBLISH_RECORDS_STORAGE = "github-publish-records";
+const STORAGE_NAME = "github-publish-config.json";
+const PUBLISH_RECORDS_STORAGE = "github-publish-records.json";
 
 export default class GitHubPublishPlugin extends Plugin {
     private settings: GitHubSettings;
@@ -33,7 +33,6 @@ export default class GitHubPublishPlugin extends Plugin {
     private publishRecords: PublishRecords = {};
 
     async onload() {
-        console.log("loading siyuan-github-publish-plugin");
 
         const frontEnd = getFrontend();
         this.isMobile = frontEnd === "mobile" || frontEnd === "browser-mobile";
@@ -63,25 +62,14 @@ export default class GitHubPublishPlugin extends Plugin {
             }
         });
 
-        console.log("GitHub Publish Plugin loaded successfully");
     }
 
     onLayoutReady() {
-        console.log(`frontend: ${getFrontend()}; backend: ${getBackend()}`);
     }
 
     async onunload() {
-        console.log("unloading GitHub Publish Plugin");
-        showMessage(this.i18n.pluginName + " " + window.siyuan.languages.uninstall);
-    }
-
-    /**
-     * 插件卸载时调用，删除所有插件保存的数据
-     */
-    async uninstall() {
-        console.log("uninstalling GitHub Publish Plugin");
         await this.cleanupPluginData();
-        showMessage(this.i18n.pluginName + " " + window.siyuan.languages.uninstall + ", " + window.siyuan.languages.allDataRemoved);
+        showMessage(this.i18n.pluginName + " " + this.i18n.uninstall + ", " + this.i18n.allDataRemoved);
     }
 
     /**
@@ -89,17 +77,11 @@ export default class GitHubPublishPlugin extends Plugin {
      */
     private async cleanupPluginData() {
         try {
-            console.log("Cleaning up all plugin data...");
-            
             // 删除发布记录数据
             await this.removeData(PUBLISH_RECORDS_STORAGE);
-            console.log("Publish records removed");
             
             // 删除配置数据
             await this.removeData(STORAGE_NAME);
-            console.log("Configuration data removed");
-            
-            console.log("All plugin data cleaned up successfully");
         } catch (error) {
             console.error("Failed to cleanup plugin data:", error);
         }
@@ -110,7 +92,6 @@ export default class GitHubPublishPlugin extends Plugin {
      */
     private showPublishMenu() {
         const menu = new Menu("githubPublishMenu", () => {
-            console.log("Publish menu closed");
         });
 
         // 获取当前笔记的发布记录
@@ -251,16 +232,12 @@ export default class GitHubPublishPlugin extends Plugin {
             // 处理图片
             const processedContent = await ContentProcessor.processMarkdownImages(markdownContent, noteId);
             
-            // 发布到 GitHub
-            console.log("Starting GitHub publish process...");
-            
             // 更新进度提示（批量上传只需要一个进度提示）
             const updateProgress = () => {
                 showMessage(this.i18n.uploadingNote, 3000, "info");
             };
             
             await this.publishToGitHub(config, folderName, processedContent, updateProgress, frontMatter);
-            console.log("GitHub publish process completed successfully");
 
             // 保存发布记录
             await this.savePublishRecord(noteId, noteTitle, folderName, config);
@@ -268,7 +245,6 @@ export default class GitHubPublishPlugin extends Plugin {
             // 等待一段时间确保之前的进度提示消失
             await new Promise(resolve => setTimeout(resolve, 1000));
             showMessage(this.i18n.publishSuccess, 3000);
-            console.log("Success message displayed");
 
         } catch (error) {
             console.error("Publish failed:", error);
@@ -348,7 +324,6 @@ export default class GitHubPublishPlugin extends Plugin {
             await this.savePublishRecordsToStorage();
 
             showMessage(this.i18n.deleteSuccess, 3000);
-            console.log("Publish deletion completed successfully");
 
         } catch (error) {
             console.error("Delete publish failed:", error);
@@ -362,11 +337,9 @@ export default class GitHubPublishPlugin extends Plugin {
     private async savePublishRecordsToStorage() {
         try {
             const storageData = JSON.stringify(this.publishRecords);
-            console.log("Saving all publish records to storage:", PUBLISH_RECORDS_STORAGE, this.publishRecords);
             
             // 使用思源笔记插件的 saveData 方法
             await this.saveData(PUBLISH_RECORDS_STORAGE, storageData);
-            console.log("All publish records saved successfully");
         } catch (error) {
             console.error("Failed to save publish records:", error);
         }
@@ -646,7 +619,6 @@ export default class GitHubPublishPlugin extends Plugin {
         try {
             // 使用思源笔记插件的 loadData 方法
             const storageData = await this.loadData(PUBLISH_RECORDS_STORAGE);
-            console.log("Loading publish records from storage:", storageData);
             
             if (storageData !== null && storageData !== undefined && storageData !== '') {
                 try {
@@ -665,7 +637,6 @@ export default class GitHubPublishPlugin extends Plugin {
                     // 确保解析后的数据是对象格式
                     if (parsedData && typeof parsedData === 'object' && !Array.isArray(parsedData)) {
                         this.publishRecords = parsedData;
-                        console.log("Publish records loaded successfully:", Object.keys(this.publishRecords));
                     } else {
                         console.error("Invalid publish records format, expected object but got:", typeof parsedData, parsedData);
                         this.publishRecords = {};
@@ -677,7 +648,6 @@ export default class GitHubPublishPlugin extends Plugin {
             } else {
                 // 如果没有数据，说明存储为空
                 this.publishRecords = {};
-                console.log("No publish records found in storage");
             }
         } catch (error) {
             console.error("Failed to load publish records:", error);
@@ -707,11 +677,9 @@ export default class GitHubPublishPlugin extends Plugin {
         
         try {
             const storageData = JSON.stringify(this.publishRecords);
-            console.log("Saving publish records to storage:", PUBLISH_RECORDS_STORAGE, this.publishRecords);
             
             // 使用思源笔记插件的 saveData 方法
             await this.saveData(PUBLISH_RECORDS_STORAGE, storageData);
-            console.log("Publish records saved successfully");
         } catch (error) {
             console.error("Failed to save publish record:", error);
         }
@@ -728,18 +696,14 @@ export default class GitHubPublishPlugin extends Plugin {
         }
 
         const noteId = editor.protyle.block.rootID;
-        console.log("Current note ID:", noteId);
         
         // 直接通过 noteId 访问发布记录
         const record = this.publishRecords[noteId] || null;
         
         // 双重验证：确保记录确实属于当前笔记
         if (record && record.noteId === noteId) {
-            console.log("Current note has publish record:", record.noteTitle);
             return record;
         }
-        
-        console.log("Current note has no publish record");
         return null;
     }
 

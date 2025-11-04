@@ -9,7 +9,7 @@ import type { GitHubConfig } from "../types/github";
 
 class GitHubSettings {
     private settingUtils: SettingUtils;
-    private storageName = "github-publish-config";
+    private storageName = "github-publish-config.json";
     private plugin: any;
 
     constructor(plugin: any) {
@@ -163,7 +163,6 @@ class GitHubSettings {
         }
         
         this.settingUtils.set(key, value);
-        console.log(`Setting ${key} saved:`, value);
     }
     
     /**
@@ -338,8 +337,6 @@ class GitHubSettings {
      * 显示消息
      */
     private showMessage(message: string, type: "info" | "success" | "error" = "info") {
-        console.log(`[${type}] ${message}`);
-        
         // 使用思源的 showMessage 函数
         if (typeof showMessage === 'function') {
             if (type === 'error') {
