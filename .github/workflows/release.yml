@@ -57,6 +57,6 @@ jobs:
         with:
           allowUpdates: true
           artifactErrorsFailBuild: true
-          artifacts: "package.zip"
+          artifacts: "siyuan-github-publish-plugin.zip"
           token: ${{ secrets.GITHUB_TOKEN }}
           prerelease: false
