@@ -4,32 +4,19 @@
   "url": "https://github.com/sonicrang/siyuan-github-publish-plugin",
   "version": "0.1.0",
   "minAppVersion": "3.2.1",
-  "backends": [
-    "windows",
-    "linux",
-    "darwin",
-    "ios",
-    "android",
-    "harmony",
-    "docker"
-  ],
-  "frontends": [
-    "desktop",
-    "mobile",
-    "browser-desktop",
-    "browser-mobile",
-    "desktop-window"
-  ],
+  "backends": ["all"],
+  "frontends": ["all"],
+  "disabledInPublish": true,
   "displayName": {
-    "en_US": "GitHub Publish Plugin",
+    "default": "GitHub Publish Plugin",
     "zh_CN": "GitHub 发布插件"
   },
   "description": {
-    "en_US": "Publish SiYuan notes to GitHub repository",
+    "default": "Publish SiYuan notes to GitHub repository",
     "zh_CN": "将思源笔记发布到 GitHub 仓库"
   },
   "readme": {
-    "en_US": "README.md",
+    "default": "README.md",
     "zh_CN": "README_zh_CN.md"
   },
   "funding": {
@@ -38,8 +25,6 @@
     ]
   },
   "keywords": [
-    "github",
-    "publish",
     "export",
     "GitHub发布",
     "导出"
