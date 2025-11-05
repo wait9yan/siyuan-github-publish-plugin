@@ -68,6 +68,13 @@ export default class GitHubPublishPlugin extends Plugin {
     }
 
     async onunload() {
+        
+    }
+
+    /**
+     * 插件卸载时调用，删除所有插件保存的数据
+     */
+    async uninstall() {
         await this.cleanupPluginData();
         showMessage(this.i18n.pluginName + " " + this.i18n.uninstall + ", " + this.i18n.allDataRemoved);
     }
